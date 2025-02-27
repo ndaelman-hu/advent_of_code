@@ -1,6 +1,6 @@
 main :: IO ()
 main = (putStrLn . show . sum) $
-  (\(v, is) -> selForSum (deconstruct "" v is) v) <$>
+  (\(v, is) -> selForSum (deconstruct v is) v) <$>
   [(190, [10, 19])
   ,(3267, [81, 40, 27])
   ,(83, [17, 5])
@@ -14,12 +14,12 @@ main = (putStrLn . show . sum) $
 selForSum :: (Int, String) -> Int -> Int
 selForSum res v = if fst res == 0 then v else 0
 
-deconstruct :: String -> Int -> [Int] -> (Int, String)
-deconstruct chs v is = if v <= 0 || is == []
-  then (v, tail chs)
-  else
-    let (iss, i) = (init is, last is); new = decide v i
-    in deconstruct ((snd new) : (show i) ++ chs) (fst new) iss
+deconstruct :: Int -> [Int] -> (Int, String)
+deconstruct v is = foldr (recursionBody) (v, "") is
+    
+recursionBody :: Int -> (Int, String) -> (Int, String)
+recursionBody i res = (fst inter, (snd inter) : (show i) ++ (snd res))
+  where inter = decide (fst res) i
 
 decide :: Int -> Int -> (Int, Char)
 decide v i =
