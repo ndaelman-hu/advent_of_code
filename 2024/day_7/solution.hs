@@ -6,11 +6,11 @@ main = let b = "190: 10 19\n3267: 81 40 27\n83: 17 5\n156: 15 6\n7290: 6 8 6 15\
   in case parse body "" b of
     Left err -> putStrLn $ "Error: " ++ show err
     Right result -> putStrLn . show . sum $
-      (\(v, is) -> selForSum (deconstruct v is) v) <$> result
+      (selForSum . fst) <*> (uncurry $ deconstruct)  <$> result
 
 -- solution logic
-selForSum :: (Int, String) -> Int -> Int
-selForSum res v = if fst res == 0 then v else 0
+selForSum :: Int -> (Int, String) -> Int
+selForSum v res = if fst res == 0 then v else 0
 
 deconstruct :: Int -> [Int] -> (Int, String)
 deconstruct v is = foldr (recursionBody) (v, "") is
