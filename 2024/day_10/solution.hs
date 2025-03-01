@@ -2,7 +2,7 @@ import Data.List
 import qualified Numeric.LinearAlgebra as H
 
 main :: IO ()
-main = putStrLn . show . bucketCount categorize
+main = putStrLn . show . bucketCount categorize  -- TODO: add trajectory counter
   $ hrzConn input ++ vrtConn input
     where input = [[0,1,2,3], [1,2,3,4], [8,7,6,5], [9,8,7,6]]
 
