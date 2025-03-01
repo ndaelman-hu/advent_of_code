@@ -20,8 +20,8 @@ switchDec norm rev = case (norm, rev) of
   (Nothing:ns, Just r:rs) -> (r:switchDec ns rs)
   (_, Nothing:rs) -> switchDec norm rs
 
-genDiskMap' :: [Int] -> [Int] -> [Maybe Int] -- Doesn't check that length files == length empties
-genDiskMap' fs es = concat $ zipWith3 genDiskMap [0..] fs es  -- ?
+genDiskMap' :: [Int] -> [Int] -> [Maybe Int]
+genDiskMap' fs es = concat $ zipWith3 genDiskMap [0..] fs es
 
 genDiskMap :: Int -> Int -> Int -> [Maybe Int]
 genDiskMap ide file empty = take file (repeat (Just ide)) ++ take empty (repeat Nothing)
