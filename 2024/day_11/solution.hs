@@ -1,8 +1,6 @@
-import Control.Monad
-
 main :: IO ()
 main = putStrLn . show . length
-  $ iterate (\xs -> xs >>= rules) stones !! n
+  $ iterate (concatMap rules) stones !! n
   where n = 25; stones = [125, 17]
 
 rules :: Int -> [Int]
