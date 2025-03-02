@@ -1,0 +1,3 @@
+This exercise hasn't been solved yet.
+The approach of counting connectors does not guarantee the existence of a trajectory,
+e.g. when connectors worth 2 chains exist, but one is broken.
