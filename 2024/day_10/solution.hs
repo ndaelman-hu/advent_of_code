@@ -23,7 +23,7 @@ eyes :: Int -> BucketCounter
 eyes i = zeros V.// [(i, 1)]
 
 addV :: BucketCounter -> BucketCounter -> BucketCounter
-addV v w = V.fromList $ zipWith (+) (V.toList v) (V.toList w)
+addV = (V.fromList .) . zipWith (+) `on` V.toList
 
 bucketCount ::(a -> BucketCounter) -> [a] -> BucketCounter
 bucketCount categorize xs = foldl' (addV) zeros (map categorize xs)
