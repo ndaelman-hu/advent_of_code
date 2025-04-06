@@ -36,13 +36,13 @@ instr p =
   in opcode opCode opArg p
 
 safeReadOpcode :: Prog -> Int
-safeReadOpcode prog 
-  | headPos prog < length (tapeI prog) = tapeI prog !! headPos prog
+safeReadOpcode p 
+  | headPos p < length (tapeI p) = tapeI p !! headPos p
   | otherwise = -1  -- halt when out of bounds
 
 safeReadOperand :: Prog -> Int
-safeReadOperand prog
-  | headPos prog + 1 < length (tapeI prog) = tapeI prog !! (headPos prog + 1)
+safeReadOperand p
+  | headPos p + 1 < length (tapeI p) = tapeI p !! (headPos p + 1)
   | otherwise = -1
 
 opcode :: Int -> Int -> Prog -> Prog
@@ -57,24 +57,24 @@ opcode 7 n p = jmp 2 $ cdv n p
 opcode _ _ p = halt p  -- halt when out of bounds
 
 bst :: Int -> Prog -> Prog
-bst n prog = prog {regB = (operand True n prog) `mod` 8}
+bst n p = p {regB = (operand True n p) `mod` 8}
 
 jnz :: Int -> Prog -> Prog
-jnz n prog = if regA prog == 0
-  then jmp 2 prog
-  else prog {headPos = (operand False n prog)}
+jnz n p = if regA p == 0
+  then jmp 2 p
+  else p {headPos = (operand False n p)}
 
 out :: Int -> Prog -> Prog
-out n prog = prog {tapeO = tapeO prog ++ [(operand True n prog) `mod` 8]}
+out n p = p {tapeO = tapeO p ++ [(operand True n p) `mod` 8]}
 
 bxl :: Int -> Prog -> Prog
-bxl n prog = bx (regB prog) (operand False n prog) prog
+bxl n p = bx (regB p) (operand False n p) p
 
 bxc :: Int -> Prog -> Prog
-bxc _ prog = bx (regB prog) (regC prog) prog
+bxc _ p = bx (regB p) (regC p) p
 
 bx :: Int -> Int -> Prog -> Prog
-bx m n prog = prog {regB = m `xor` n}
+bx m n p = p {regB = m `xor` n}
 
 adv :: Int -> Prog -> Prog
 adv = dv regA
@@ -86,15 +86,15 @@ cdv :: Int -> Prog -> Prog
 cdv = dv regC
 
 dv :: (Prog -> Int) -> Int -> Prog -> Prog
-dv getter n prog = 
-  let divisor = 2 ^ (operand True n prog)
-  in {regA = getter prog `div` divisor}
+dv getter n p = 
+  let divisor = 2 ^ (operand True n p)
+  in p {regA = getter p `div` divisor}
 
 tapeAtEnd :: Prog -> Bool
-tapeAtEnd prog = headPos prog >= length (tapeI prog)
+tapeAtEnd p = headPos p >= length (tapeI p)
 
 halt :: Prog -> Prog
-halt prog = prog {isHalted = True}
+halt p = p {isHalted = True}
 
 operand :: Bool -> Int -> (Prog -> Int)
 operand combo n
@@ -106,13 +106,13 @@ operand combo n
   | otherwise = const n
 
 readOpcode :: Prog -> Int
-readOpcode prog = tapeI prog !! headPos prog
+readOpcode p = tapeI p !! headPos p
 
 readOperand :: Prog -> Int
-readOperand prog = tapeI prog !! (headPos prog + 1)
+readOperand p = tapeI p !! (headPos p + 1)
 
 jmp :: Int -> Prog -> Prog
-jmp n prog = prog {headPos = headPos prog + n}
+jmp n p = p {headPos = headPos p + n}
 
 data Prog = Prog {
   regA :: Int,
