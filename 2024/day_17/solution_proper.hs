@@ -7,7 +7,7 @@ import Debug.Trace (trace)
 main :: IO ()
 main = putStrLn . show . tapeO $ final
   where 
-    final = until (liftA2 (||) isHalted tapeAtEnd) instr prog
+    final = until (liftA2 (||) isHalted tapeAtEnd) debugInstr prog
     prog = Prog {
       regA = 729,
       regB = 0,
@@ -18,13 +18,14 @@ main = putStrLn . show . tapeO $ final
       isHalted = False
     }
 
--- Add debug to see what's happening
-step :: Prog -> Prog
-step p = 
+debugInstr :: Prog -> Prog
+debugInstr p = 
   let p' = instr p
-      debug = "Step: " ++ show (headPos p) ++ " OpCode: " ++ show (safeReadOpcode p) ++ 
+      debug = "Head: " ++ show (headPos p) ++
+              " OpCode: " ++ show (safeReadOpcode p) ++ 
               " OpArg: " ++ show (safeReadOperand p) ++ 
-              " RegA: " ++ show (regA p) ++ " RegB: " ++ show (regB p) ++ 
+              " RegA: " ++ show (regA p) ++
+              " RegB: " ++ show (regB p) ++ 
               " RegC: " ++ show (regC p)
   in trace debug p'
 
@@ -34,16 +35,15 @@ instr p =
       opArg = safeReadOperand p
   in opcode opCode opArg p
 
--- Safe version to prevent out-of-bounds errors
 safeReadOpcode :: Prog -> Int
 safeReadOpcode prog 
   | headPos prog < length (tapeI prog) = tapeI prog !! headPos prog
-  | otherwise = -1  -- Use -1 for halt when out of bounds
+  | otherwise = -1  -- halt when out of bounds
 
 safeReadOperand :: Prog -> Int
 safeReadOperand prog
   | headPos prog + 1 < length (tapeI prog) = tapeI prog !! (headPos prog + 1)
-  | otherwise = 0  -- Default value when out of bounds
+  | otherwise = -1
 
 opcode :: Int -> Int -> Prog -> Prog
 opcode 0 n p = jmp 2 $ adv n p
@@ -54,7 +54,7 @@ opcode 4 n p = jmp 2 $ bxc n p
 opcode 5 n p = jmp 2 $ out n p
 opcode 6 n p = jmp 2 $ bdv n p
 opcode 7 n p = jmp 2 $ cdv n p
-opcode _ _ p = halt p
+opcode _ _ p = halt p  -- halt when out of bounds
 
 bst :: Int -> Prog -> Prog
 bst n prog = prog {regB = (operand True n prog) `mod` 8}
@@ -88,9 +88,7 @@ cdv = dv regC
 dv :: (Prog -> Int) -> Int -> Prog -> Prog
 dv getter n prog = 
   let divisor = 2 ^ (operand True n prog)
-  in if divisor == 0 
-     then prog  -- Prevent division by zero
-     else prog {regA = getter prog `div` divisor}
+  in {regA = getter prog `div` divisor}
 
 tapeAtEnd :: Prog -> Bool
 tapeAtEnd prog = headPos prog >= length (tapeI prog)
