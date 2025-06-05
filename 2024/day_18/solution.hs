@@ -1,9 +1,9 @@
 import Data.List (stripPrefix, partition, sortBy)
 
 main :: IO ()
-main = putStrLn . show $ recurse sorted "brwrr" []
+main = print $ recurse sorted "brwrr" []
   where
-    sorted = sortBy (\x y -> flip compare (length x) (length y)) patts
+    sorted = sortBy (\x y -> compare (length y) (length x)) patts
     patts = ["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]
 
 recurse :: [String] -> String -> [String] -> [String]
