@@ -21,7 +21,9 @@ consumeAny (p:ps) dsgn =
     Nothing -> consumeAny ps dsgn
 
 data Patts = Patts String [[String]]
-  deriving Show
+
+instance Show Patts where
+  show (Patts base patts) = show base ++ "(" ++ show patts ++ ")"
 
 checkDeconstr :: Patts -> [String] -> Patts
 checkDeconstr bp [] = bp
