@@ -1,9 +1,9 @@
 import Data.List (stripPrefix, partition, sortBy)
 
 main :: IO ()
-main = print $ recurse sorted "brwrr" []
+main = print $ recurse s "brwrr" []
   where
-    sorted = sortBy (\x y -> compare (length y) (length x)) patts
+    s = sorted patts
     patts = ["r", "wr", "b", "g", "bwu", "rb", "gb", "br"]
 
 recurse :: [String] -> String -> [String] -> [String]
@@ -15,7 +15,20 @@ recurse patts dsgn strg
 
 consumeAny :: [String] -> String -> Maybe (String, String)
 consumeAny [] _ = Nothing
-consumeAny (p:ps) dsgn =
+consumeAny (p:ps) dsgn =   
   case stripPrefix p dsgn of
     Just rest -> Just (p, rest)
     Nothing -> consumeAny ps dsgn
+
+data Patts = Patts String [[String]]
+  deriving Show
+
+checkDeconstr :: Patts -> [String] -> Patts
+checkDeconstr bp [] = bp
+checkDeconstr (Patts base patts) exts = 
+  if base == concat exts
+  then Patts base (patts ++ [exts])
+  else Patts base patts
+
+sorted :: [String] -> [String]
+sorted = sortBy (\x y -> compare (length y) (length x))
