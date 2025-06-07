@@ -4,18 +4,21 @@ import Text.Parsec.String (Parser, parseFromFile)
 
 main :: IO ()
 main = do
-  updates_c <- filterEmpty <$> parseFromFile (sepEndBy1 updates newline) "updates.txt"
   rules_c <- parseFromFile (sepEndBy1 rule newline) "rules.txt"
-  print updates_c
-  print rules_c
+  updates_c <- filterEmpty <$> parseFromFile (sepEndBy1 updates newline) "updates.txt"
+  case (rules_c, updates_c) of
+    (Right rules_d, Right updates_d) -> print $ logic rules_d updates_d
+    _ -> print "Invalid input format"
+
+logic :: [(Integer, Integer)] -> [[Integer]] -> Integer 
+logic rules updates = sum $ map middlePage (filter (\update -> all (\rule -> uncurry check rule update) rules) updates)
 
 -- assumes that each integer only appears once
 check :: Integer -> Integer -> [Integer] -> Bool
 check i j ks =
   case (elemIndex i ks, elemIndex j ks) of
-    (Nothing, _) -> True
-    (_, Nothing) -> True
     (Just x, Just y) -> x < y
+    _ -> True
 
 -- unsafe especially in case of even lists
 middlePage :: [Integer] -> Integer
