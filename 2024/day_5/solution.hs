@@ -11,7 +11,10 @@ main = do
     _ -> print "Invalid input format"
 
 logic :: [(Integer, Integer)] -> [[Integer]] -> Integer 
-logic rules updates = sum $ map middlePage (filter (\update -> all (\rule -> uncurry check rule update) rules) updates)
+logic rules updates = sum $ map middlePage (checkAll rules updates)
+
+checkAll :: [(Integer, Integer)] -> [[Integer]] -> [[Integer]]
+checkAll rules = filter (\update -> all (\rule -> uncurry check rule update) rules) 
 
 -- assumes that each integer only appears once
 check :: Integer -> Integer -> [Integer] -> Bool
@@ -22,7 +25,10 @@ check i j ks =
 
 -- unsafe especially in case of even lists
 middlePage :: [Integer] -> Integer
-middlePage ks = ks !! div 2 (length ks)
+middlePage [] = error "middlePage: cannot find middle of empty list"
+middlePage ks 
+  | even (length ks) = error "middlePage: list has even length, no single middle element"
+  | otherwise = ks !! div (length ks) 2
 
 filterEmpty :: Either ParseError [[a]] -> Either ParseError [[a]]
 filterEmpty (Right cont) = Right $ filter (not . null) cont
