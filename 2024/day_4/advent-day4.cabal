@@ -1,0 +1,25 @@
+cabal-version: 2.4
+name: advent-day4
+version: 0.1.0.0
+
+executable advent-day4
+    main-is: Solution.hs
+    build-depends: 
+        base ^>=4.18.0.0,
+        linear,
+        comonad,
+        massiv
+    hs-source-dirs: .
+    default-language: Haskell2010
+
+test-suite test
+    type: exitcode-stdio-1.0
+    main-is: Test.hs
+    build-depends:
+        base ^>=4.18.0.0,
+        linear,
+        comonad,
+        massiv,
+        hspec
+    hs-source-dirs: .
+    default-language: Haskell2010
