@@ -1,19 +1,30 @@
-solve = (,) <$> ... <*> id $ ...
+import Numeric.LinearAlgebra
+import Text.Parsec
+import Text.Parsec.String
 
-subst :: Equ 
+main :: IO ()
+main = do
+  let problems = [
+        (m2 [94, 34, 22, 67], vector [8400, 5400]),
+        (m2 [26, 66, 67, 21], vector [12748, 12176]),
+        (m2 [17, 86, 84, 37], vector [7870, 6450]),
+        (m2 [69, 23, 27, 71], vector [18641, 10279])
+        ]
+      solutions = [weights sol | (a, b) <- problems, det a /= 0, let sol = a <\> b]
+  print $ sum solutions
 
-uppertriag :: Eqs -> Eqs   
-uppertriag eqs = 
+m2 :: [Double] -> Matrix Double
+m2 [a,b,c,d] = (2><2) [a,b,c,d]
 
-firstZ :: [Int] -> Maybe Int
-firstZ [] = Nothing
-firstZ r:rs = if r == 0 then firstZ rs else Just r 
+weights :: Vector Double -> Double
+weights v = 3 * (v ! 0) + (v ! 1)
 
-det :: Int -> Int -> Int -> Int -> Int 
-det a b c d = a * c - b * d 
+-----------------------------
 
-type Matrix = [[Int]]
-type Eqs = {
-  m :: Matrix,
-  v :: [Int]
-  }
+pv :: Parser (Vector Double)
+pv = do
+  _ <- string "Prize: X="
+  x <- read <$> many1 digit
+  _ <- string ", Y="
+  y <- read <$> many1 digit
+  return $ vector [fromIntegral x, fromIntegral y]
