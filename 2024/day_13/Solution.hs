@@ -7,26 +7,29 @@ main = do
   let filename = "questions.txt"
   content <- readFile filename
   case parse (many pvs) filename content of
-       Left e -> print e
-       Right res -> print $ sum [
-         weights sol | (a, b) <- res,
-         det a /= 0,
-         let sol = roundVector $ a <\> b,
-         all (<= 100) $ toList sol,
-         a #> sol == b
-         ]
+    Left e -> print e
+    Right res -> print . sum . fmap weights $ solution res
 
-m2 :: [Double] -> Matrix Double
-m2 = 2><2
+solution :: [(Matrix Double, Vector Double)] -> [Vector Double]
+solution res = [sol |
+  (a, b) <- res,
+  det a /= 0,
+  let sol = roundVector $ a <\> b,
+  all (<= 100) $ toList sol,
+  a #> sol == b
+  ]
 
 weights :: Vector Double -> Double
 weights v = 3 * (v ! 0) + (v ! 1)
+
+m2 :: [Double] -> Matrix Double
+m2 = 2><2
 
 -----------------------------
 
 pv :: Parser Double
 pv = do
-  _ <- manyTill anyChar (oneOf "+=")  -- skip everything until + or =
+  _ <- manyTill anyChar (oneOf "+=")
   digits <- many1 digit
   return $ fromIntegral (read digits :: Int)
 
@@ -40,6 +43,5 @@ pvs = do
   _ <- newline
   s1  <- pv
   s2  <- pv
-  _ <- newline
-  _ <- newline
+  _ <- skipMany newline
   return (m2 [r11, r12, r21, r22], vector [s1, s2])
