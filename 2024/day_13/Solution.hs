@@ -10,24 +10,21 @@ main = do
         (m2 [17, 84, 86, 37], vector [7870, 6450]  ),
         (m2 [69, 27, 23, 71], vector [18641, 10279])
         ]
-      solutions = [sol | (a, b) <- problems, det a /= 0, let sol = a <\> b, isClose 1e-5 b (a #> sol)]
-  print solutions
+      solutions = [weights sol | (a, b) <- problems, det a /= 0, let sol = roundVector $ a <\> b, a #> sol == b]
+  print $ sum solutions
 
 m2 :: [Double] -> Matrix Double
-m2 [a,b,c,d] = (2><2) [a,b,c,d]
+m2 = 2><2
 
 weights :: Vector Double -> Double
 weights v = 3 * (v ! 0) + (v ! 1)
-
-isClose :: Double -> Vector Double -> Vector Double -> Bool
-isClose eps v1 v2 = norm_2 (v1 - v2) < eps
 
 -----------------------------
 
 pv :: Parser (Vector Double)
 pv = do
   _ <- string "Prize: X="
-  x <- read <$> many1 digit
+  x <- (read :: String -> Int) <$> many1 digit
   _ <- string ", Y="
-  y <- read <$> many1 digit
+  y <- (read :: String -> Int) <$> many1 digit
   return $ vector [fromIntegral x, fromIntegral y]
