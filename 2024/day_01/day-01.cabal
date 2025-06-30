@@ -1,0 +1,16 @@
+cabal-version: 3.0
+name: day01
+version: 0.1.0.0
+synopsis: Advent of Code 2024 Day 1 Solution
+description: Solution for Advent of Code 2024 Day 1 problem
+author: Nathan
+maintainer: nathan@example.com
+category: Education
+build-type: Simple
+
+executable day01
+    main-is: Solution.hs
+    build-depends: base,
+                   parsec
+    hs-source-dirs: .
+    default-language: Haskell2010
