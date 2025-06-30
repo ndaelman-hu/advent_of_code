@@ -4,14 +4,17 @@ import Text.Parsec.String
 
 main :: IO ()
 main = do
-  let problems = [
-        (m2 [94, 22, 34, 67], vector [8400, 5400]  ),
-        (m2 [26, 67, 66, 21], vector [12748, 12176]),
-        (m2 [17, 84, 86, 37], vector [7870, 6450]  ),
-        (m2 [69, 27, 23, 71], vector [18641, 10279])
-        ]
-      solutions = [weights sol | (a, b) <- problems, det a /= 0, let sol = roundVector $ a <\> b, a #> sol == b]
-  print $ sum solutions
+  let filename = "questions.txt"
+  content <- readFile filename
+  case parse (many pvs) filename content of
+       Left e -> print e
+       Right res -> print $ sum [
+         weights sol | (a, b) <- res,
+         det a /= 0,
+         let sol = roundVector $ a <\> b,
+         all (<= 100) $ toList sol,
+         a #> sol == b
+         ]
 
 m2 :: [Double] -> Matrix Double
 m2 = 2><2
@@ -21,10 +24,22 @@ weights v = 3 * (v ! 0) + (v ! 1)
 
 -----------------------------
 
-pv :: Parser (Vector Double)
+pv :: Parser Double
 pv = do
-  _ <- string "Prize: X="
-  x <- (read :: String -> Int) <$> many1 digit
-  _ <- string ", Y="
-  y <- (read :: String -> Int) <$> many1 digit
-  return $ vector [fromIntegral x, fromIntegral y]
+  _ <- manyTill anyChar (oneOf "+=")  -- skip everything until + or =
+  digits <- many1 digit
+  return $ fromIntegral (read digits :: Int)
+
+pvs :: Parser (Matrix Double, Vector Double)
+pvs = do
+  r11 <- pv
+  r21 <- pv
+  _ <- newline
+  r12 <- pv
+  r22 <- pv
+  _ <- newline
+  s1  <- pv
+  s2  <- pv
+  _ <- newline
+  _ <- newline
+  return (m2 [r11, r12, r21, r22], vector [s1, s2])
