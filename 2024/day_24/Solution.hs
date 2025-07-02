@@ -26,18 +26,19 @@ solution :: [Var] -> [Gate] -> [Var]
 solution vars gates = runST $ do
   ht <- H.new
   mapM_ (uncurry $ H.insert ht) vars 
-  compGates gates ht
+  convLogic apLogic gates ht
   mapM_ (H.delete ht) $ fmap fst vars -- delete original vars
   toList ht
 
-compGates :: [Gate] -> H.HashTable s String Bool -> ST s ()
-compGates gates ht = do
+convLogic :: (a -> H.HashTable s k v -> ST s ()) -> [a] -> H.HashTable s k v -> ST s ()
+convLogic op xs ht = do
   oldLength <- length <$> toList ht
-  mapM_ (`apLogic` ht) gates 
+  mapM_ (`op` ht) xs 
   newLength <- length <$> toList ht
   if oldLength == newLength
      then return ()
-     else compGates gates ht
+     else convLogic op xs ht
+
 
 apLogic :: Gate -> H.HashTable s String Bool -> ST s ()
 apLogic (lft, rght, trgt, oprtr) ht = do
