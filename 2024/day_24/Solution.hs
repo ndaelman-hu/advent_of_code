@@ -21,6 +21,7 @@ solution vars gates = runST $ do
   ht <- H.new
   mapM_ (uncurry $ H.insert ht) vars 
   compGates gates ht
+  mapM_ (H.delete ht) $ fmap fst vars
   toList ht
 
 compGates :: [Gate] -> H.HashTable s String Bool -> ST s ()
