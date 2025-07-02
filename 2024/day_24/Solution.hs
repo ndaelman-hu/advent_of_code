@@ -39,7 +39,6 @@ convLogic op xs ht = do
      then return ()
      else convLogic op xs ht
 
-
 apLogic :: Gate -> H.HashTable s String Bool -> ST s ()
 apLogic (lft, rght, trgt, oprtr) ht = do
   lb <- H.lookup ht lft
