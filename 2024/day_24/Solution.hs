@@ -2,7 +2,6 @@ import Control.Monad.ST
 import Data.List (sortOn, isPrefixOf)
 import qualified Data.HashTable.ST.Basic as H
 import Data.HashTable.Class (toList)
-import Numeric (readInt)
 import Text.Parsec
 import Text.Parsec.String
 import Text.Parsec.Char (alphaNum, upper, space)
@@ -48,13 +47,10 @@ apLogic (lft, rght, trgt, oprtr) ht = do
     (Just lbb, Just rbb) -> H.insert ht trgt $ oprtr lbb rbb
     (_, _) -> return ()
 
+-- converters
+
 intFromBinary :: [Bool] -> Int
 intFromBinary bools = sum [if b then 2^i else 0 | (i, b) <- zip [0..] (reverse bools)]
-
-type Var = (String, Bool)
-type Gate = (String, String, String, Bool -> Bool -> Bool) -- left I, right I, target O
-
--- parsing
 
 svar :: [Var] -> String
 svar = unlines . map stringFromVar
@@ -62,6 +58,11 @@ svar = unlines . map stringFromVar
 
 intFromBool :: Bool -> Int
 intFromBool b = if b then 1 else 0
+
+type Var = (String, Bool)
+type Gate = (String, String, String, Bool -> Bool -> Bool) -- left I, right I, target O
+
+-- parsing
 
 pvar :: Parser Var
 pvar = do
