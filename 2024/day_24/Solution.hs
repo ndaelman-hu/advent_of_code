@@ -1,7 +1,8 @@
+import Control.Monad.ST
 import Data.List (sortOn)
 import qualified Data.HashTable.ST.Basic as H
 import Data.HashTable.Class (toList)
-import Control.Monad.ST
+import Numeric (readInt)
 import Text.Parsec
 import Text.Parsec.String
 import Text.Parsec.Char (alphaNum, upper, space)
@@ -13,7 +14,9 @@ main = do
   let vars  = parse (endBy pvar newline)  "" cvars
   let gates = parse (endBy pgate newline) "" cgates
   case (vars, gates) of
-    (Right evars, Right egates) -> putStr . svar . sortOn fst $ solution evars egates
+    (Right evars, Right egates) -> do
+      let results = sortOn fst $ solution evars egates
+      putStr $ svar results ++ "\nDecoded: " ++ (show . intFromBinary $ fmap snd results)
     _ -> print "Failure"
 
 solution :: [Var] -> [Gate] -> [Var]
@@ -41,6 +44,9 @@ apLogic (lft, rght, trgt, oprtr) ht = do
     (Just lbb, Just rbb) -> H.insert ht trgt $ oprtr lbb rbb
     (_, _) -> return ()
 
+intFromBinary :: [Bool] -> Int
+intFromBinary bools = sum [2^i | i <- intFromBool <$> bools]
+
 type Var = (String, Bool)
 type Gate = (String, String, String, Bool -> Bool -> Bool) -- left I, right I, target O
 
@@ -50,7 +56,9 @@ svar :: [Var] -> String
 svar = unlines . map stringFromVar
   where
     stringFromVar (k, v) = k ++ ": " ++ show (intFromBool v)
-    intFromBool b = if b then 1 else 0
+
+intFromBool :: Bool -> Int
+intFromBool b = if b then 1 else 0
 
 pvar :: Parser Var
 pvar = do
