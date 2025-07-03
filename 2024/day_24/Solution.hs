@@ -30,22 +30,23 @@ solution vars gates = runST $ do
   mapM_ (H.delete ht) $ fmap fst vars -- delete original vars
   toList ht
 
-convLogic :: (a -> H.HashTable s k v -> ST s ()) -> [a] -> H.HashTable s k v -> ST s ()
+convLogic :: (a -> H.HashTable s k v -> ST s Bool) -> [a] -> H.HashTable s k v -> ST s ()
 convLogic op xs ht = do
-  oldLength <- length <$> toList ht
-  mapM_ (`op` ht) xs 
-  newLength <- length <$> toList ht
-  if oldLength == newLength
+  passed <- mapM (`op` ht) xs 
+  let (_, ys) = unzip $ filter (not . fst) $ zip passed xs
+  if null ys
      then return ()
-     else convLogic op xs ht
+     else convLogic op ys ht
 
-apLogic :: Gate -> H.HashTable s String Bool -> ST s ()
+apLogic :: Gate -> H.HashTable s String Bool -> ST s Bool
 apLogic (lft, rght, trgt, oprtr) ht = do
   lb <- H.lookup ht lft
   rb <- H.lookup ht rght
   case (lb, rb) of
-    (Just lbb, Just rbb) -> H.insert ht trgt $ oprtr lbb rbb
-    (_, _) -> return ()
+    (Just lbb, Just rbb) -> do
+      H.insert ht trgt $ oprtr lbb rbb
+      return True
+    (_, _) -> return False
 
 -- converters
 
