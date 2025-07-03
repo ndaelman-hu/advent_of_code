@@ -16,10 +16,10 @@ main = do
   case (vars, gates) of
     (Right evars, Right egates) -> do
       let results =  sortOn fst $ solution evars egates
-      let resultsZ = filter (isPrefixOf "z" . fst) results
-      let binaryZ  = concatMap (show . intFromBool . snd) resultsZ
-      let numZ = intFromBinary . reverse $ fmap snd resultsZ 
-      putStr $ svar results ++ "\nDecoded: " ++ binaryZ ++ ", " ++ show numZ
+      let resultsZ = filter (isPrefixOf "z" . fst) results -- vars named z**
+      let binariesZ  = concatMap (show . intFromBool . snd) resultsZ -- vars values combined into a binary number
+      let numeralsZ = intFromBinary . map snd . reverse $ resultsZ -- numeral representation of binary number
+      putStr $ svar results ++ "\nDecoded: " ++ binariesZ ++ ", " ++ show numeralsZ
     _ -> print "Failure"
 
 solution :: [Var] -> [Gate] -> [Var]
@@ -33,7 +33,7 @@ solution vars gates = runST $ do
 convLogic :: (a -> H.HashTable s k v -> ST s Bool) -> [a] -> H.HashTable s k v -> ST s ()
 convLogic op xs ht = do
   passed <- mapM (`op` ht) xs 
-  let (_, ys) = unzip $ filter (not . fst) $ zip passed xs
+  let (_, ys) = unzip $ filter (not . fst) $ zip passed xs -- filter out passed gates
   if null ys
      then return ()
      else convLogic op ys ht
