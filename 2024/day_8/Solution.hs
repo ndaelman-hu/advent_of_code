@@ -1,5 +1,5 @@
 import Linear.V2
-import Data.List (nub)
+import Data.List (nubBy)
 
 main :: IO ()
 main = do
@@ -7,8 +7,10 @@ main = do
   print . fullFilter inputs $ solSymb inputs
 
 fullFilter :: [Node] -> [Node] -> [Node]
-fullFilter ogs ns = zip ks $ filter (inBounds (V2 10 10)) . nub . filter (`notElem` fmap snd ogs) $ vs
-  where (ks, vs) = unzip ns
+fullFilter ogs = 
+  filter (inBounds (V2 10 10) . snd) . -- filter for antinodes inside the boundaries
+  nubBy (\x y -> snd x == snd y) . -- filter for unique positions
+  filter (\x -> snd x `notElem` fmap snd ogs) -- filter for antinodes, i.e. no originals
 
 inBounds :: V2 Int -> V2 Int -> Bool
 inBounds (V2 rx ry) (V2 x y) = x < rx && y < ry 
