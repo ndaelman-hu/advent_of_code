@@ -4,7 +4,7 @@ import Data.List (nubBy)
 main :: IO ()
 main = do
   let inputs = [('a', V2 3 4), ('a', V2 4 8), ('a', V2 5 5)]
-  print . fullFilter inputs $ solSymb inputs
+  print . fullFilter inputs . concat $ pairAp compAntiNodes inputs
 
 fullFilter :: [Node] -> [Node] -> [Node]
 fullFilter ogs = 
@@ -14,9 +14,6 @@ fullFilter ogs =
 
 inBounds :: V2 Int -> V2 Int -> Bool
 inBounds (V2 rx ry) (V2 x y) = x < rx && y < ry 
-
-solSymb :: [Node] -> [Node]
-solSymb = concat . pairAp compAntiNodes
 
 pairAp :: Applicative f => (a -> a -> b) -> f a -> f b
 pairAp f x = f <$> x <*> x
