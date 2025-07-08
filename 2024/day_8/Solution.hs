@@ -1,10 +1,20 @@
 import Linear.V2
 import Data.List (nubBy)
+import Text.Parsec
+import Text.Parsec.String
+import Text.Parsec.Char (alphaNum)
+import Text.Parsec.Pos (sourceLine, sourceColumn)
 
 main :: IO ()
 main = do
   let inputs = [('a', V2 3 4), ('a', V2 4 8), ('a', V2 5 5)]
-  print . fullFilter inputs . concat $ pairAp compAntiNodes inputs
+  content <- readFile "problem.txt"
+  let parsed = parse pMain "" content
+  print inputs
+  case parsed of
+    Left err  -> print err
+    Right res -> print res
+  -- print . fullFilter inputs . concat $ pairAp compAntiNodes inputs
 
 fullFilter :: [Node] -> [Node] -> [Node]
 fullFilter ogs = 
@@ -26,3 +36,26 @@ compAntiNodes (k, v) (l, w) =
   where d = v - w
 
 type Node = (Char, V2 Int)
+
+-- parsing
+
+pMain :: Parser ([Node], V2 Int) -- nodes and boundaries
+pMain = do
+  ns  <- concat <$> manyTill pNodeFlexible eof
+  bnd <- getPosition
+  return (ns, V2 (sourceLine bnd) (sourceColumn bnd)) 
+
+pNodeFlexible :: Parser [Node]
+pNodeFlexible = concat <$> many (
+  try (return <$> pNode)  <|>
+  (char '.' >> return []) <|>
+  (newline >> return []))
+
+pNode :: Parser Node
+pNode = do
+  c <- alphaNum
+  p <- getPosition
+  return (c, sourceToPos p)
+
+sourceToPos :: SourcePos -> V2 Int
+sourceToPos s = V2 (sourceLine s - 1) (sourceColumn s - 2)
