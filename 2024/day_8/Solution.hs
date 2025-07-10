@@ -1,4 +1,5 @@
 import Linear.V2
+import Data.Bifunctor (bimap)
 import Data.List (nubBy)
 import Text.Parsec
 import Text.Parsec.String
@@ -41,15 +42,21 @@ type Node = (Char, V2 Int)
 
 pMain :: Parser ([Node], V2 Int) -- nodes and boundaries
 pMain = do
-  ns  <- concat <$> manyTill pNodeFlexible eof
-  bnd <- getPosition
-  return (ns, V2 (sourceLine bnd) (sourceColumn bnd)) 
+  ns  <- unzip <$> many pNodeEnd
+  return (Data.Bifunctor.bimap concat (foldl (+) (V2 0 0)) ns)
 
-pNodeFlexible :: Parser [Node]
-pNodeFlexible = concat <$> many (
-  try (return <$> pNode)  <|>
-  (char '.' >> return []) <|>
-  (newline >> return []))
+pNodeEnd :: Parser ([Node], V2 Int)
+pNodeEnd = do
+  n <- pNodeLine
+  p <- getPosition
+  _ <- newline
+  e <- optionMaybe eof
+  case e of
+    Nothing -> return (n, V2 0 0)
+    Just r  -> return (n, sourceToPos p)
+
+pNodeLine :: Parser [Node]
+pNodeLine = concat <$> manyTill (try (return <$> pNode) <|> (char '.' >> return [])) (lookAhead newline)
 
 pNode :: Parser Node
 pNode = do
