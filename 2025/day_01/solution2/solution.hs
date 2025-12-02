@@ -25,17 +25,6 @@ countClick rot = do
   let extraClick = if ((signum dial == 1 && signum newDial == -1) || (signum dial == -1 && signum newDial == 1) || newDial == 0) && extraRot == 0 then 1 else 0
   put (newDial, clicks + rawRot + extraRot + extraClick)
 
--- trials
-
-f :: [Int] -> [Int]
-f = scanl (-) (-50)
-
-cntSgnChanges :: [Int] -> [Int]
-cntSgnChanges xs = zipWith (*) (fmap signum xs) (signum <$> tail xs)
-
-fullRot :: [Int] -> [Int] 
-fullRot = fmap (`div` 100)
-
 -- parsing
 
 rotation :: Parser Int
