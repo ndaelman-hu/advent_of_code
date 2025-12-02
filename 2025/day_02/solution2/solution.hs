@@ -10,15 +10,8 @@ main = do
     Right r -> print . sum $ f $ t2l =<< r
 
 f :: [Int] -> [Int]
-f x = read <$> (filter (\n xs -> isOfNLength n xs && isValidNId n xs) $ show <$> x)
-
-factorize :: Int -> [Int] -- ordered list of factors
-factorize n = fact (n-1) []
-  where
-    fact 1 xs = xs
-    fact k xs = if n `mod` k == 0
-                   then fact k (k:xs)
-                   else fact (k-1) xs
+f x = read . snd <$> filter (\(n, xs) -> isOfNLength n xs && isValidNId n xs) y
+  where y = [(i, show x') | i <- [2..maximum (length . show <$> x)], x' <- x]
 
 isOfNLength :: Int -> String -> Bool
 isOfNLength n xs = mod (length xs) n == 0
