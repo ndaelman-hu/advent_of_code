@@ -7,17 +7,17 @@ main = do
   inp <- parseFromFile ranges "input.txt"
   case inp of
     Left e -> print e
-    Right r -> print . sum $ f $ join $ fmap t2l r
+    Right r -> print . sum $ f $ t2l =<< r
 
 
 f :: [Int] -> [Int]
-f x = read <$> (filter (\x -> is_even_length x && is_valid_id x) $ fmap show x)
+f x = read <$> (filter (\x -> isEvenLength x && isValidId x) $ fmap show x)
 
-is_even_length :: String -> Bool
-is_even_length xs = mod (length xs) 2 == 0 
+isEvenLength :: String -> Bool
+isEvenLength xs = even (length xs) 
 
-is_valid_id :: String -> Bool
-is_valid_id xs = take j (drop 0 xs) == take j (drop j xs)
+isValidId :: String -> Bool
+isValidId xs = take j xs == take j (drop j xs)
   where
     i = length xs
     j = i `div` 2
