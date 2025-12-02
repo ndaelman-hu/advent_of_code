@@ -9,15 +9,22 @@ main = do
     Left e -> print e
     Right r -> print . sum $ f $ t2l =<< r
 
-
 f :: [Int] -> [Int]
-f x = read <$> (filter (\x -> isOfNLength x && isValidNId x) $ fmap show x)
+f x = read <$> (filter (\n xs -> isOfNLength n xs && isValidNId n xs) $ show <$> x)
+
+factorize :: Int -> [Int] -- ordered list of factors
+factorize n = fact (n-1) []
+  where
+    fact 1 xs = xs
+    fact k xs = if n `mod` k == 0
+                   then fact k (k:xs)
+                   else fact (k-1) xs
 
 isOfNLength :: Int -> String -> Bool
 isOfNLength n xs = mod (length xs) n == 0
 
 isValidNId :: Int -> String -> Bool
-isValidNId n xs = all (== take j xs) [take (k * (j + 1)) (drop (k * j) xs) | k <- [1..(n-1)]]
+isValidNId n xs = all (== take j xs) [take (k * (j + 1)) (drop (k * j) xs) | k <- [1..n-1]]
   where
     i = length xs
     j = i `div` n -- is ensured by isOfNLength
