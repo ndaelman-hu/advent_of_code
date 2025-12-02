@@ -1,0 +1,8 @@
+Build profile: -w ghc-9.6.7 -O1
+In order, the following will be built (use -v for more details):
+ - solution1-0.1.0.0 (exe:solution) (file solution.hs changed)
+Preprocessing executable 'solution' for solution1-0.1.0.0...
+Building executable 'solution' for solution1-0.1.0.0...
+[1 of 1] Compiling Main             ( solution.hs, /home/nathan/Documents/advent_of_code/2025/day_01/solution2/dist-newstyle/build/x86_64-linux/ghc-9.6.7/solution1-0.1.0.0/x/solution/build/solution/solution-tmp/Main.o ) [Source file changed]
+[2 of 2] Linking /home/nathan/Documents/advent_of_code/2025/day_01/solution2/dist-newstyle/build/x86_64-linux/ghc-9.6.7/solution1-0.1.0.0/x/solution/build/solution/solution [Objects changed]
+(32,5)
