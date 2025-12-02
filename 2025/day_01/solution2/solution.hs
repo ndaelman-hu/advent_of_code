@@ -18,11 +18,12 @@ countClick :: Int -> Control.Monad.State.Strict.State (Int, Int) () -- rotation 
 countClick rot = do
   (dial, clicks) <- get
   traceM ("Current state: " ++ show (dial, clicks))
-  let rawRot = quot rot 100
+  let rawRot = abs $ quot rot 100
   let leftOverRot = rem rot 100
+  let extraRot = abs $ quot (dial + leftOverRot) 100
   let newDial = rem (dial + leftOverRot) 100
-  let extraClick = if signum dial == signum newDial || signum dial == 0 then 0 else 1
-  put (newDial, clicks + abs rawRot + extraClick)
+  let extraClick = if ((signum dial == 1 && signum newDial == -1) || (signum dial == -1 && signum newDial == 1) || newDial == 0) && extraRot == 0 then 1 else 0
+  put (newDial, clicks + rawRot + extraRot + extraClick)
 
 -- trials
 
