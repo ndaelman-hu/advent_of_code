@@ -6,27 +6,23 @@ import Text.Parsec.String (Parser, parseFromFile)
 
 main :: IO ()
 main = do
-  inp <- parseFromFile dial "input.test.txt"
+  inp <- parseFromFile dial "input.txt"
   case inp of
     Left e -> print e
-    Right r -> let (_, res) = runState (mapM countClick r) (50, 0, 0) 
+    Right r -> let (_, res) = runState (mapM countClick r) (50, 0) 
                 in print res
 
 -- monad
 
-countClick :: Int -> Control.Monad.State.Strict.State (Int, Int, Int) () -- rotation -> State (dial, clicks, direction)
+countClick :: Int -> Control.Monad.State.Strict.State (Int, Int) () -- rotation -> State (dial, clicks, direction)
 countClick rot = do
-  s <- get
-  let (dial, clicks, dir) = s
-  traceM ("Current state: " ++ show s)
-  let newDial = mod (dial + rot) 100
-  let newClicks = if dir == 0
-                     then abs $ max (quot (dial + rot) 100) (quot (dial - rot) 100)
-                      else abs $ quot (dial + dir * rot) 100
-  let newDir = signum rot
-  if newDial == 0
-     then put (newDial, clicks + newClicks + 1, newDir)
-     else put (newDial, clicks + newClicks, newDir)
+  (dial, clicks) <- get
+  traceM ("Current state: " ++ show (dial, clicks))
+  let rawRot = quot rot 100
+  let leftOverRot = rem rot 100
+  let newDial = rem (dial + leftOverRot) 100
+  let extraClick = if signum dial == signum newDial || signum dial == 0 then 0 else 1
+  put (newDial, clicks + abs rawRot + extraClick)
 
 -- trials
 
