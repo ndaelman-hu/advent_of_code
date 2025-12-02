@@ -17,7 +17,7 @@ isValidNId :: String -> Bool
 isValidNId s = 
   let factors = uniqueDividersNoPrime (length s)
       chunks  = fmap (`splitEqChunks` s) factors
-  in not (null factors) && any id (fmap (\x -> all (== head x) (tail x)) chunks)
+  in not (null factors) && any (\xs -> all (== head xs) (tail xs)) chunks
 
 splitEqChunks :: Int -> String -> [String] -- requires all dividers, else produces list with the last element of shorter length
 splitEqChunks nchunk s = [take ssize (drop (k*ssize) s) | k <- [0..nchunk-1]]
