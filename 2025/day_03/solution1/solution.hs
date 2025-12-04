@@ -5,14 +5,14 @@ import Text.Parsec.String (Parser, parseFromFile)
 
 main :: IO ()
 main = do
-  inp <- parseFromFile rows "input.test.txt"
+  inp <- parseFromFile rows "input.txt"
   case inp of
     Left e -> print e
-    Right r -> print $ fmap (f . indexList) r 
+    Right r -> print . sum $ fmap ((read :: String -> Int) . f . indexList) r 
 
-f :: IVal a -> [a]
+f :: Ord a => IVal a -> [a]
 f (IVal xs) = fst <$> take 2 (filter (\x -> snd x >= firstI ys) ys)
-  where IVal ys = highestFirst . IVal . sortBy (comparing (Down . snd)) $ xs -- sort desc 
+  where IVal ys = highestFirst . IVal . sortBy (comparing (Down . fst)) $ xs -- sort desc 
 
 highestFirst :: IVal a -> IVal a -- type sgn can be relaxed
 highestFirst (IVal xs) = if firstI xs == length xs then IVal (swap12 xs) else IVal xs
