@@ -1,62 +1,25 @@
-{-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE TemplateHaskell #-}
-import Control.Lens
-import Data.List (splitAt)
+import Data.List (sortBy)
+import Data.Ord (comparing, Down(Down))
 
 main :: IO ()
-main = print . f $ read <$> "234234234234278"
+main = print . f $ indexList "234234234234278"
 
-f :: [Int] -> Selector [Int]
-f xs = (\x -> mapFst show (byMax x)) =<< (slosh byMax (Selector hs)) <*> Selector ts
-  where 
-    byLast xs = (init xs, last xs)
-    (hs, ts) = splitl byLast (return xs)
+f :: IVal a -> [a]
+f (IVal xs) = fst <$> take 2 (filter (\x -> snd x >= firstI ys) ys)
+  where IVal ys = highestFirst . IVal . sortBy (comparing (Down . snd)) $ xs -- sort desc 
 
--- Selector definitions
+highestFirst :: IVal a -> IVal a -- type sgn can be relaxed
+highestFirst (IVal xs) = if firstI xs == length xs then IVal (swap12 xs) else IVal xs
 
-data Selector a = Selector {_selStr :: String, _selVal :: a}
+swap12 :: [a] -> [a] -- swap first 2 list elements
+swap12 (x:y:zs) = y:x:zs
+swap12 xs = xs  -- handles [], [x]
 
-makeLenses ''Selector
+firstI :: [(a, Int)] -> Int 
+firstI = snd . head
 
-instance Functor Selector where
-  fmap :: (a -> b) -> Selector a -> Selector b
-  fmap f sel = sel & selVal %~ f
+indexList :: [a] -> IVal a
+indexList xs = IVal $ zip xs [1..]
 
-instance Applicative Selector where
-  pure :: a -> Selector a 
-  pure = Selector ""
-
-  (<*>) :: Selector (a -> b) -> Selector a -> Selector b
-  sel1 <*> sel2 = Selector
-    (sel1 ^. selStr ++ sel2 ^. selStr)
-    (sel1 ^. selVal $ sel2 ^. selVal)
-
-instance Monad Selector where
-  return = pure
-
-  (>>=) :: Monad m => m a -> (a -> m b) -> m b
-  sel >>= f = Selector (sel ^. selStr ++ selh ^. selStr) (selh ^. selVal)
-      where selh = f $ sel ^. selVal 
-
--- extra Selector functions
-
-slosh :: ([a] -> (Int, a)) -> Selector [a] -> Selector [a]
-slosh f sel = Selector (s ++ show y) (removeAt j xs)
-  where
-    xs = sel ^. selVal
-    (y, j) = f xs
-
-splitl :: ([a] -> ([a], [a])) -> Selector [a] -> (Selector [a], Selector [a])
-splitl f sel = (Selector (sel ^. selStr, ls), Selector ("", rs))
-  where
-    xs = sel ^. selVal
-    (ls, rs) = f xs
-
--- generic list selection
-
-removeAt :: Int -> [a] -> [a]
-removeAt i xs = front ++ tail back
-  where (front, back) = splitAt i xs
-
-mapFst :: (a -> b) -> (a, c) -> (b, c)
-mapFst f (x, y) = (f x, y)
+newtype IVal a = IVal [(a,Int)]
+  deriving (Eq,Ord)
