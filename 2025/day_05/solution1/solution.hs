@@ -3,17 +3,16 @@ import Text.Parsec.String (Parser, parseFromFile)
 
 main :: IO ()
 main = do
-  inp <- parseFromFile parser "input.test.txt"
+  inp <- parseFromFile parser "input.txt"
   case inp of
     Left e -> print e
-    Right (ranges, xs) -> print . sum $ f ranges xs
+    Right (ranges, xs) -> print . length $ f ranges xs
 
 f :: [(Int, Int)] -> [Int] -> [Int]
-f ranges xs = concat [[x | x `elem` urange] | x <- xs]
-  where urange = concatMap buildRange ranges
+f ranges xs = concat [if or [checkRange r x | r <- ranges] then [x] else [] | x <- xs]
 
-buildRange :: (Int, Int) -> [Int]
-buildRange (i, j) = [i..j]
+checkRange :: (Int, Int) -> (Int -> Bool)
+checkRange (i, j) x = (i <= x) && (x <= j)
 
 digits :: Parser Int
 digits = read <$> many digit
