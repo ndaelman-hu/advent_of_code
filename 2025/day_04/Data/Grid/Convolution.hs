@@ -27,23 +27,21 @@ convolute :: (Window a -> Bool) -> Grid a -> [(Int, Int)]
 convolute predicate grid =
   [pos | pos <- A.indices grid, predicate (getWindow grid pos)]
 
--- | Auto-convolute: applies a boundary policy and counts matches
--- omitBounds: only check positions not on the boundary
+-- | Auto-convolute: counts matches across all positions
+-- The boundary handler determines how out-of-bounds cells are treated
+-- omitBounds: out-of-bounds cells become Nothing (already handled by getWindow)
 -- predicate: function that checks if window matches pattern
-autoConvolute :: ((Int, Int) -> (Int, Int) -> Bool) -> (Window a -> Bool) -> Grid a -> Int
-autoConvolute boundPolicy predicate grid =
-  length $ filter (\pos -> boundPolicy pos dims && predicate (getWindow grid pos)) (A.indices grid)
-  where
-    dims = dimensions grid
+autoConvolute :: a -> (Window b -> Bool) -> Grid b -> Int
+autoConvolute _boundHandler predicate grid =
+  length $ filter (predicate . getWindow grid) (A.indices grid)
 
--- | Boundary policy: omit positions on the edge
-omitBounds :: (Int, Int) -> (Int, Int) -> Bool
-omitBounds (r, c) (rows, cols) =
-  r > 0 && r < rows - 1 && c > 0 && c < cols - 1
+-- | Boundary handler: out-of-bounds cells become Nothing (no-op, already done by getWindow)
+omitBounds :: ()
+omitBounds = ()
 
--- | Boundary policy: include all positions
-includeBounds :: (Int, Int) -> (Int, Int) -> Bool
-includeBounds _ _ = True
+-- | Boundary handler placeholder
+includeBounds :: ()
+includeBounds = ()
 
 -- | Get 4-directional neighbors (up, down, left, right)
 neighbors4 :: (Int, Int) -> [(Int, Int)]
