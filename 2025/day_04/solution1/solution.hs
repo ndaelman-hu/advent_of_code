@@ -5,15 +5,17 @@ import Text.Parsec.String (Parser, parseFromFile)
 
 main :: IO ()
 main = do
-  inp <- parseFromFile parseGrid "input.test.txt"
+  inp <- parseFromFile parseGrid "input.txt"
   case inp of
     Left e -> print e
     Right r -> print $ f r
 
 f :: Grid Char -> Int
 f = autoConvolute omitBounds fullCard
-  where fullCard grid = if get' grid (1,1) == Just '@' && count (Just '@') (concat grid) <= 5 then True else False
-        get' g (r,c) = get g (r,c)  -- helper to match window coordinate system
+  where fullCard window =
+          let center = window !! 1 !! 1  -- center of 3x3 window
+              flatWindow = concat window
+           in center == Just '@' && count (Just '@') flatWindow < 5
 
 count :: Eq a => a -> [a] -> Int
 count c = length . filter (== c)
