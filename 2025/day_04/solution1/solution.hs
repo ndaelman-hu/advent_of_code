@@ -11,7 +11,7 @@ main = do
     Right r -> print $ f r
 
 f :: Grid Char -> Int
-f = autoConvolute omitBounds fullCard
+f = countMatches omitBounds fullCard
   where fullCard window =
           let center = window !! 1 !! 1  -- center of 3x3 window
               flatWindow = concat window
