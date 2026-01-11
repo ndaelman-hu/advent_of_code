@@ -1,0 +1,36 @@
+cabal-version: 2.4
+name: advent-day5
+version: 0.1.0.0
+
+library
+  exposed-modules: Solution
+  hs-source-dirs: .
+  build-depends: 
+    base,
+    parsec,
+    containers
+  default-language: Haskell2010
+
+executable solution
+  main-is: Main.hs
+  hs-source-dirs: .
+  other-modules: Solution
+  build-depends:
+    base,
+    advent-day5,
+    parsec,
+    containers
+  default-language: Haskell2010
+
+test-suite tests
+  type: exitcode-stdio-1.0
+  main-is: test.hs
+  hs-source-dirs: .
+  other-modules: Solution
+  build-depends:
+    base,
+    advent-day5,
+    QuickCheck,
+    parsec,
+    containers
+  default-language: Haskell2010
