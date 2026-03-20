@@ -35,13 +35,13 @@ newtype Counter = Counter (Integer, Integer)
 instance Semigroup Counter where
   Counter (x1, x2) <> Counter (y1, y2) = let
     dialSize = 100
-    smallCounter = x1 + y1
-    smallDial = smallCounter `mod` dialSize
-    bigDialIncrement = abs (smallCounter `div` dialSize)
-     in Counter (smallDial, x2 + y2 + bigDialIncrement)
+    counter = x1 + y1
+    smallDial = counter `mod` dialSize
+    bigDial = if smallDial == 0 then 1 else 0
+    in Counter (smallDial, x2 + y2 + bigDial)
 
 instance Monoid Counter where
   mempty = Counter (0, 0)
 
 f :: [Counter] -> Counter
-f = foldr (<>) (Counter (-50, 0))
+f = foldl (<>) (Counter (50, 0)) -- l is needed, as the monoid is not commutative
