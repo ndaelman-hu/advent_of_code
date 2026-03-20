@@ -9,14 +9,39 @@ main = do
     Left e -> print e
     Right r -> print . f $ r
 
-f :: [Int] -> Int
-f = length . filter (==0) . fmap (`mod` 100) . scanl (+) (-50)
-
-rotation :: Parser Int
+rotation :: Parser Counter
 rotation = do
   sgn <- char 'L' $> (* (-1)) <|> char 'R' $> id
   n <- many1 digit
-  return $ sgn (read n)
+  return $ Counter (sgn (read n), 0)
 
-dial :: Parser [Int]
+dial :: Parser [Counter]
 dial = many (rotation <* newline)
+
+-- ━━━ Monoid (T) ━━━
+-- Carrier: 
+-- Operation: (<>) :  →  → 
+-- Identity: mempty : 
+--
+-- Laws (extend Semigroup):
+--   (assoc)   ∀ a b c. (a <> b) <> c ≡ a <> (b <> c)
+--   (left-id) ∀ a. mempty <> a ≡ a
+--   (right-id)∀ a. a <> mempty ≡ a
+--   (mconcat) ∀ xs. mconcat xs ≡ foldr (<>) mempty xs
+
+newtype Counter = Counter (Integer, Integer)
+  deriving Show
+
+instance Semigroup Counter where
+  Counter (x1, x2) <> Counter (y1, y2) = let
+    dialSize = 100
+    smallCounter = x1 + y1
+    smallDial = smallCounter `mod` dialSize
+    bigDialIncrement = abs (smallCounter `div` dialSize)
+     in Counter (smallDial, x2 + y2 + bigDialIncrement)
+
+instance Monoid Counter where
+  mempty = Counter (0, 0)
+
+f :: [Counter] -> Counter
+f = foldr (<>) (Counter (-50, 0))
