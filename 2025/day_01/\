@@ -4,10 +4,12 @@ import Text.Parsec.String (Parser, parseFromFile)
 
 main :: IO ()
 main = do
-  inp <- parseFromFile dial "input1.txt"
+  inp <- parseFromFile dial "input2.txt"
   case inp of
     Left e -> print e
     Right r -> print . f $ r
+
+-- parsing
 
 rotation :: Parser Counter
 rotation = do
@@ -17,6 +19,11 @@ rotation = do
 
 dial :: Parser [Counter]
 dial = many (rotation <* newline)
+
+-- core logic
+
+newtype Counter = Counter (Integer, Integer)
+  deriving Show
 
 -- ━━━ Monoid (T) ━━━
 -- Carrier: 
@@ -29,19 +36,17 @@ dial = many (rotation <* newline)
 --   (right-id)∀ a. a <> mempty ≡ a
 --   (mconcat) ∀ xs. mconcat xs ≡ foldr (<>) mempty xs
 
-newtype Counter = Counter (Integer, Integer)
-  deriving Show
-
 instance Semigroup Counter where
-  Counter (x1, x2) <> Counter (y1, y2) = let
+  Counter (x1, x2) <> Counter (y1, y2) = let  
     dialSize = 100
-    counter = x1 + y1
-    smallDial = counter `mod` dialSize
-    bigDial = if smallDial == 0 then 1 else 0
-    in Counter (smallDial, x2 + y2 + bigDial)
+    dialSum = x1 + y1
+    smallDial = dialSum `mod` dialSize
+    sgnEff = if x1 * y1 < 0 && abs x1 < abs y1 && abs dialSum < dialSize then 1 else 0
+    bigDial = x2 + y2 + abs dialSum `div` dialSize + sgnEff
+    in Counter (smallDial, bigDial)
 
 instance Monoid Counter where
   mempty = Counter (0, 0)
 
-f :: [Counter] -> Counter
-f = foldl (<>) (Counter (50, 0)) -- l is needed, as the monoid is not commutative
+f :: [Counter] -> [Counter]
+f = scanl (<>) (Counter (50, 0))

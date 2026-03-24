@@ -18,7 +18,6 @@ executable solution1
 executable solution2
     main-is: solution2.hs
     build-depends: base,
-                   parsec,
-                   mtl
+                   parsec
     hs-source-dirs: .
     default-language: Haskell2010
